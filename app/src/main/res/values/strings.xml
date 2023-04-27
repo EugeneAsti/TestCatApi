@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">CatApiTestApp</string>
+    <string name="title_main">Коты</string>
+    <string name="title_favorite">Избранное</string>
+    <string name="title_cat_info">Про кота</string>
+</resources>
