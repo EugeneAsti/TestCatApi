@@ -1,4 +1,4 @@
-package ru.aeyu.catapitestapp.data.model.usecases.di
+package ru.aeyu.catapitestapp.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -21,7 +21,7 @@ object NetworkModule {
 
 
     @Provides
-    fun provideInterceptor() : Interceptor{
+    fun provideInterceptor() : Interceptor {
         return if(BuildConfig.DEBUG)
             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
         else
@@ -35,6 +35,14 @@ object NetworkModule {
     ) : OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(interceptor)
+            .addInterceptor {chain ->
+                val request = chain.request()
+                val modifiedRequest = with(request.newBuilder()) {
+                    header("x-api-key", BuildConfig.API_KEY)
+                    build()
+                }
+                chain.proceed(modifiedRequest)
+            }
             .build()
     }
 
@@ -51,12 +59,12 @@ object NetworkModule {
         okHttpClient: OkHttpClient
     ): Retrofit {
         val json = Json {
+            isLenient = true
             ignoreUnknownKeys = true
         }
         val contentType = "application/json".toMediaType()
 
-        return Retrofit
-            .Builder()
+        return Retrofit.Builder()
             .addConverterFactory(json.asConverterFactory(contentType))
             .baseUrl(BuildConfig.MAIN_URL)
             .client(okHttpClient)

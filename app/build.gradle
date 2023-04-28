@@ -5,7 +5,7 @@ plugins {
     //Hilt
     id 'com.google.dagger.hilt.android'
     id 'kotlinx-serialization'
-
+    //id 'org.jetbrains.kotlin.jvm' //version '1.8.21'
 }
 android {
     namespace 'ru.aeyu.catapitestapp'
@@ -21,6 +21,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "MAIN_URL", "\"https://api.thecatapi.com\"")
+        buildConfigField("String", "API_KEY", "\"live_sRy7VVQwtVj2ia8hpdR4uUa80nnu3ft7TrEqIVBPhlG8BQZoz1qcABVqFGFihDEc\"")
     }
 
     buildTypes {
@@ -43,12 +44,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlin {
             // Or shorter:
-            jvmToolchain(8)
+            jvmToolchain(17)
     }
 //    kotlinOptions {
 //        jvmTarget = '1.8'
@@ -59,7 +60,10 @@ android {
         buildConfig true
     }
 }
-
+// Allow references to generated code
+kapt {
+    correctErrorTypes true
+}
 dependencies {
 
     def room_version = "2.5.1"
@@ -67,7 +71,9 @@ dependencies {
     def coroutines_version = "1.6.4"
     def fragment_version = "1.5.7"
     def hilt_version = '2.45'
+    def paging_version = "3.1.1"
 
+    implementation 'com.google.devtools.ksp:symbol-processing-api:1.8.0-1.0.9'
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
@@ -81,6 +87,8 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     // Need to make room works
     kapt "androidx.room:room-compiler:$room_version"
+    // To use Kotlin Symbol Processing (KSP)
+//    ksp "androidx.room:room-compiler:$room_version"
 
     // - - ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -101,6 +109,14 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+//    implementation ("com.github.bumptech.glide:recyclerview-integration:4.15.1") {
+//        // Excludes the support library because it's already included by Glide.
+//        transitive = false
+//    }
+
+
+    implementation "androidx.paging:paging-runtime:$paging_version"
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0'
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"

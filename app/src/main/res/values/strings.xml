@@ -3,4 +3,6 @@
     <string name="title_main">Коты</string>
     <string name="title_favorite">Избранное</string>
     <string name="title_cat_info">Про кота</string>
+    <string name="cat_hint">Cat must be here</string>
+    <string name="like_button_desc">like button</string>
 </resources>
