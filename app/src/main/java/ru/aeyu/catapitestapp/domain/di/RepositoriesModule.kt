@@ -8,6 +8,8 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import ru.aeyu.catapitestapp.data.remote.repositories.CatsPagingDataRepository
 import ru.aeyu.catapitestapp.data.remote.repositories.CatsRemoteRepository
 import ru.aeyu.catapitestapp.domain.usecases.GetPagingCatsRemoteUseCase
+import ru.aeyu.catapitestapp.domain.usecases.GetRemoteBreedsUseCase
+import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatsUseCase
 
 @Module
@@ -26,4 +28,15 @@ object RepositoriesModule {
         pagingRemoteRepository: CatsPagingDataRepository): GetPagingCatsRemoteUseCase =
         GetPagingCatsRemoteUseCase(pagingRemoteRepository)
 
+    @Provides
+    @ViewModelScoped
+    fun provideGetRemoteCatUseCase(
+        remoteRepository: CatsRemoteRepository): GetRemoteCatUseCase =
+        GetRemoteCatUseCase(remoteRepository)
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetRemoteBreedsUseCase(
+        remoteRepository: CatsRemoteRepository): GetRemoteBreedsUseCase =
+        GetRemoteBreedsUseCase(remoteRepository)
 }

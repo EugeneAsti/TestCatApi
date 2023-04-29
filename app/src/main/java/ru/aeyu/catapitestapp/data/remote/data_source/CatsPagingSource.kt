@@ -22,7 +22,7 @@ class CatsPagingSource(
 
         return try {
             var nextPageNumber = params.key ?: 1
-            val catsList = theCatApi.getCats(catsPerPage, breedId)
+            val catsList = theCatApi.getCats(limit = catsPerPage, breedId = breedId)
 
             nextPageNumber++
             LoadResult.Page(

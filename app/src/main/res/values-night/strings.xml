@@ -1,10 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CatApiTestApp</string>
-    <string name="title_main">Коты</string>
-    <string name="title_favorite">Избранное</string>
-    <string name="title_cat_info">Про кота</string>
-    <string name="cat_hint">Cat must be here</string>
-    <string name="like_button_desc">like button</string>
     <string name="adaptability">Adaptability</string>
     <string name="affectionlevel">AffectionLevel</string>
     <string name="childfriendly">ChildFriendly</string>
@@ -22,6 +17,4 @@
     <string name="natural">Natural</string>
     <string name="rare">Rare</string>
     <string name="rex">Rex</string>
-    <string name="breeds">Breeds</string>
-    <string name="breed_filter">Breed filter:</string>
 </resources>

@@ -4,30 +4,37 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
+import ru.aeyu.catapitestapp.domain.models.Breed
 import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.domain.usecases.GetPagingCatsRemoteUseCase
+import ru.aeyu.catapitestapp.domain.usecases.GetRemoteBreedsUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatsUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getRemoteCatsUseCase: GetRemoteCatsUseCase,
-    private val getPagingCatsRemoteUseCase: GetPagingCatsRemoteUseCase
-): ViewModel() {
+    private val getPagingCatsRemoteUseCase: GetPagingCatsRemoteUseCase,
+    private val getRemoteBreedsUseCase: GetRemoteBreedsUseCase,
 
-//    private val _catsList = MutableSharedFlow<List<Cat>>()
+    ) : ViewModel() {
+
+    //    private val _catsList = MutableSharedFlow<List<Cat>>()
 //    val catsList: SharedFlow<List<Cat>> = _catsList.asSharedFlow()
-
-    private val _isLoadingOutlets = MutableLiveData(false)
-    val isLoadingOutlets: LiveData<Boolean> = _isLoadingOutlets
+    private val _isLoadingCats = MutableLiveData(true)
+    val isLoadingCats: LiveData<Boolean> = _isLoadingCats
 
     private val _errMessages = MutableLiveData("")
     val errMessages: LiveData<String> = _errMessages
@@ -35,11 +42,16 @@ class HomeViewModel @Inject constructor(
     private val _infoMessages = MutableLiveData<String>()
     val infoMessages: LiveData<String> = _infoMessages
 
-    private val selectedBreed: String = ""
+//    var selectedBreed: String = ""
 
-    fun getCats(): Flow<List<Cat>> = flow {
-        getRemoteCatsUseCase(10, selectedBreed)
-            .onStart { _isLoadingOutlets.postValue(true) }
+    private val _onBreedChanged = MutableLiveData("")
+    val onBreedChanged: LiveData<String> = _onBreedChanged
+
+
+
+    fun getCats(selectedBreedId: String): Flow<List<Cat>> = flow {
+        getRemoteCatsUseCase(10, selectedBreedId)
+            .onStart { _isLoadingCats.postValue(true) }
             .collect { result ->
                 result.onSuccess {
                     emit(it)
@@ -48,7 +60,7 @@ class HomeViewModel @Inject constructor(
                     it.printStackTrace()
                     sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
                 }
-                _isLoadingOutlets.postValue(false)
+                _isLoadingCats.postValue(false)
             }
     }
 
@@ -60,12 +72,44 @@ class HomeViewModel @Inject constructor(
         _infoMessages.postValue(info)
     }
 
-    fun onCatClicked(cat: Cat?){
+
+    fun onAddToFavoriteClick(cat: Cat?) {
 
     }
 
-    fun getCatsPaging(): Flow<PagingData<Cat>> =
-        getPagingCatsRemoteUseCase(viewModelScope, 15, selectedBreed)
+    fun getCatsPaging(selectedBreedId: String): Flow<PagingData<Cat>> = flow {
+        _isLoadingCats.value = true
 
+        getPagingCatsRemoteUseCase(viewModelScope, 12, selectedBreedId)
+            .collect { result ->
+                result.onSuccess {
+                    emit(it)
+                }
+                result.onFailure {
+                    it.printStackTrace()
+                    sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
+                }
+                _isLoadingCats.postValue(false)
+            }
+    }
+
+    fun getBreeds(): Flow<List<Breed>> = flow {
+        getRemoteBreedsUseCase()
+            .onStart { _isLoadingCats.postValue(true) }
+            .collect { result ->
+                result.onSuccess {
+                    emit(it)
+                }
+                result.onFailure {
+                    it.printStackTrace()
+                    sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
+                }
+                _isLoadingCats.postValue(false)
+            }
+    }
+
+    fun setBreed(breed: Breed) {
+            _onBreedChanged.value = breed.id
+    }
 
 }

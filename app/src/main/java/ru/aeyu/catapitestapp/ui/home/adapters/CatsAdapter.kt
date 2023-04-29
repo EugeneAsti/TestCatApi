@@ -15,8 +15,10 @@ import com.bumptech.glide.request.target.Target
 import ru.aeyu.catapitestapp.databinding.CatItemBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
 
-class CatsAdapter(diffCallback: DiffUtil.ItemCallback<Cat>,
+class CatsAdapter(
+    diffCallback: DiffUtil.ItemCallback<Cat>,
     private val onItemClick: (cat: Cat?, position: Int) -> Unit,
+    private val onAddToFavorite: (cat: Cat?, position: Int) -> Unit,
 ) : PagingDataAdapter<Cat, CatsAdapter.CatViewHolder>(diffCallback) {
 
 //    : RecyclerView.Adapter<CatsAdapter.CatViewHolder>() {
@@ -25,17 +27,21 @@ class CatsAdapter(diffCallback: DiffUtil.ItemCallback<Cat>,
     inner class CatViewHolder(
         private val binding: CatItemBinding,
         itemClick: (position: Int) -> Unit,
+        addToFavoriteClick: (position: Int) -> Unit,
 
         ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            binding.catItemLayout.setOnClickListener {
+            binding.catImage.setOnClickListener {
                 itemClick(absoluteAdapterPosition)
+            }
+            binding.likeBtn.setOnClickListener {
+                addToFavoriteClick(absoluteAdapterPosition)
             }
         }
 
         fun bind(item: Cat?) {
-            if(item == null)
+            if (item == null)
                 return
             Glide.with(itemView)
                 .load(item.url)
@@ -46,7 +52,7 @@ class CatsAdapter(diffCallback: DiffUtil.ItemCallback<Cat>,
                         target: Target<Drawable>?,
                         isFirstResource: Boolean
                     ): Boolean {
-                        binding.catLoading.isVisible = true
+                        binding.catLoading.isVisible = false
                         return false
                     }
 
@@ -62,17 +68,17 @@ class CatsAdapter(diffCallback: DiffUtil.ItemCallback<Cat>,
                     }
                 })
                 .into(binding.catImage)
-
-
         }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatViewHolder {
         val binding = CatItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CatViewHolder(binding) { position ->
+        return CatViewHolder(binding, { position ->
             onItemClick(getItem(position), position)
-        }
+        },{ position ->
+            onAddToFavorite(getItem(position), position)
+        })
     }
 
     override fun onBindViewHolder(holder: CatViewHolder, position: Int) {

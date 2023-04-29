@@ -5,17 +5,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
+
+    <TextView
+        android:id="@+id/textBreedFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/breed_filter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/breeds"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="8dp"
+        />
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/breeds"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:endIconDrawable="@drawable/ic_expand_more_blue_24"
+        app:endIconMode="dropdown_menu"
+        app:layout_constraintStart_toEndOf="@id/textBreedFilter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:boxBackgroundColor="@android:color/transparent"
+        android:paddingHorizontal="8dp"
+        >
+
+        <AutoCompleteTextView
+            android:id="@+id/breedsFilter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="none"
+            tools:text="@string/breeds"
+            tools:ignore="LabelFor"
+            android:background="@null"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cats"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_margin="4dp"
         android:layout_marginBottom="?android:attr/actionBarSize"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/cat_item"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breeds"
+        tools:listitem="@layout/cat_item" />
+
+    <ProgressBar
+        android:id="@+id/mainProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/errText"
         android:layout_width="match_parent"
@@ -24,12 +72,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:textAlignment="center"
-        android:textSize="20sp"
-        tools:text = "ERR"
         android:textColor="@android:color/holo_red_dark"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="ERR" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,6 +61,7 @@ object NetworkModule {
         val json = Json {
             isLenient = true
             ignoreUnknownKeys = true
+            explicitNulls = false
         }
         val contentType = "application/json".toMediaType()
 
