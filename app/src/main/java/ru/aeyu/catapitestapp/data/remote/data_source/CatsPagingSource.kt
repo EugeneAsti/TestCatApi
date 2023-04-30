@@ -3,11 +3,10 @@ package ru.aeyu.catapitestapp.data.remote.data_source
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import ru.aeyu.catapitestapp.data.remote.models.CatApi
-import ru.aeyu.catapitestapp.domain.models.Cat
 import java.lang.Exception
 
 class CatsPagingSource(
-    private val theCatApi: TheCatApi,
+    private val catsRemoteApi: CatsRemoteApi,
     private val catsPerPage: Int,
     private val breedId: String?,
 ) : PagingSource<Int, CatApi>() {
@@ -22,7 +21,7 @@ class CatsPagingSource(
 
         return try {
             var nextPageNumber = params.key ?: 1
-            val catsList = theCatApi.getCats(limit = catsPerPage, breedId = breedId)
+            val catsList = catsRemoteApi.getCats(limit = catsPerPage, breedId = breedId)
 
             nextPageNumber++
             LoadResult.Page(

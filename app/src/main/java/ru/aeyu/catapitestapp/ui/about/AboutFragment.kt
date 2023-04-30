@@ -1,27 +1,23 @@
 package ru.aeyu.catapitestapp.ui.about
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentAboutBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
+import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemote
 
 class AboutFragment : Fragment() {
+
 
     private var _binding: FragmentAboutBinding? = null
 
@@ -46,11 +42,22 @@ class AboutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        aboutViewModel.catImageId = args.catImageId
-        collectCats()
+        aboutViewModel.catImageId = args.catImageId ?: ""
+        collectCatInfo()
+        binding.downLoadIcon.setOnClickListener(onDownLoadClick)
+        collectMessages()
     }
 
-    private fun collectCats() {
+    private fun collectMessages() {
+        aboutViewModel.infoMessages.observe(viewLifecycleOwner){
+            showSnackBar(it)
+        }
+    }
+
+    private fun showSnackBar(messageText: String){
+        Snackbar.make(binding.root, messageText, Snackbar.LENGTH_SHORT).show()
+    }
+    private fun collectCatInfo() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 aboutViewModel.getCatInformation().collect {
@@ -64,30 +71,11 @@ class AboutFragment : Fragment() {
     }
 
     private fun handleCatData(cat: Cat) {
-        Glide.with(requireContext())
-            .load(cat.url)
-            .listener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    binding.catImageProgressBar.isVisible = false
-                    return false
-                }
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    binding.catImageProgressBar.isVisible = false
-                    return false
-                }
-            })
-            .into(binding.catImageAbout)
+        binding.catImageAbout.getImageFromRemote(
+            context = requireContext(),
+            url = cat.url,
+            progressBarWidget = binding.catImageProgressBar
+        )
         val breed = cat.breeds.firstOrNull() ?: return
 
         binding.breedName.text = breed.name
@@ -113,10 +101,12 @@ class AboutFragment : Fragment() {
 
     }
 
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private val onDownLoadClick = View.OnClickListener{
+        aboutViewModel.onDownloadClick()
     }
 }

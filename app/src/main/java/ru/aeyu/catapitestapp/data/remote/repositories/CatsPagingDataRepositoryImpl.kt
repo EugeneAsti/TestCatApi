@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.aeyu.catapitestapp.data.mappers.toDomainModel
 import ru.aeyu.catapitestapp.data.remote.data_source.CatsPagingSource
-import ru.aeyu.catapitestapp.data.remote.data_source.TheCatApi
+import ru.aeyu.catapitestapp.data.remote.data_source.CatsRemoteApi
 import ru.aeyu.catapitestapp.domain.models.Cat
 
 class CatsPagingDataRepositoryImpl(
-    private val theCatApi: TheCatApi
+    private val catsRemoteApi: CatsRemoteApi
 ) : CatsPagingDataRepository {
     override operator fun invoke(catsPerPage: Int, breedId: String?): Flow<PagingData<Cat>> =
             Pager(
@@ -20,7 +20,7 @@ class CatsPagingDataRepositoryImpl(
             // PagingConfig, such as prefetchDistance.
             PagingConfig(pageSize = 20)
         ) {
-            CatsPagingSource(theCatApi = theCatApi, catsPerPage = catsPerPage, breedId = breedId)
+            CatsPagingSource(catsRemoteApi = catsRemoteApi, catsPerPage = catsPerPage, breedId = breedId)
         }.flow.map { pagingData ->
             pagingData.map { it ->
                 it.toDomainModel()

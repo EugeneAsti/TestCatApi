@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
-import ru.aeyu.catapitestapp.data.remote.repositories.CatsRemoteRepository
+import ru.aeyu.catapitestapp.data.remote.repositories.BreedsRemoteRepository
 import ru.aeyu.catapitestapp.domain.models.Breed
 import java.io.IOException
 
 class GetRemoteBreedsUseCase(
-    private val remoteRepository: CatsRemoteRepository
+    private val remoteRepository: BreedsRemoteRepository
     ) {
     suspend operator fun invoke(): Flow<Result<List<Breed>>> =
         remoteRepository.getBreeds().map {

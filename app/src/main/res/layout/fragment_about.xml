@@ -10,11 +10,12 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="6dp"
         tools:context=".ui.about.AboutFragment">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/catImageCardView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="320dp"
             android:layout_margin="8dp"
             android:clipChildren="false"
@@ -25,7 +26,9 @@
             app:cardPreventCornerOverlap="false"
             app:contentPadding="4dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
 
             <ImageView
                 android:id="@+id/catImageAbout"
@@ -35,13 +38,31 @@
                 android:background="@drawable/onerrloadimage"
                 android:contentDescription="@string/cat_hint"
                 android:foregroundGravity="center"
-                android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:scaleType="fitCenter"
+                />
         </androidx.cardview.widget.CardView>
-
+        <ImageView
+            android:id="@+id/downLoadIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:adjustViewBounds="true"
+            android:background="@color/grey100"
+            android:src="@drawable/ic_download_24_grey"
+            android:contentDescription="@string/download"
+            android:foregroundGravity="center"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:elevation="8dp"
+            app:layout_constraintEnd_toEndOf="@id/catImageCardView"
+            app:layout_constraintTop_toTopOf="@id/catImageCardView"
+            />
+<!--        <androidx.constraintlayout.widget.Guideline-->
+<!--            android:id="@+id/guid1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            app:layout_constraintGuide_percent="0.4"/>-->
         <ProgressBar
             android:id="@+id/catImageProgressBar"
             android:layout_width="wrap_content"
@@ -84,7 +105,7 @@
             android:layout_marginTop="8dp"
             android:elevation="10dp"
 
-            android:text="------------"
+            android:text="@string/devider"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/description" />

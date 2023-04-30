@@ -4,35 +4,74 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentFavoriteBinding
+import ru.aeyu.catapitestapp.domain.models.Cat
+import ru.aeyu.catapitestapp.ui.home.adapters.FavoriteCatsAdapter
 
 class FavoriteFragment : Fragment() {
 
     private var _binding: FragmentFavoriteBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+
+    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
+
+    private lateinit var catsAdapter: FavoriteCatsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val favoriteViewModel =
-            ViewModelProvider(this).get(FavoriteViewModel::class.java)
 
         _binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        favoriteViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        catsAdapter = FavoriteCatsAdapter(onCatClicked)
+
+
+        binding.favoriteCats.adapter = catsAdapter
+        val layoutManager = GridLayoutManager(requireContext(), 3)
+        //layoutManager.
+        binding.favoriteCats.layoutManager = layoutManager
+        favoriteViewModel.isLoadingCats.observe(viewLifecycleOwner) {
+            binding.mainProgress.isVisible = it
         }
-        return root
+        collectCats()
+    }
+
+    private fun collectCats() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+
+                favoriteViewModel.getCats().collect {
+                    catsAdapter.differ.submitList(it)
+                }
+            }
+        }
+    }
+
+    private val onCatClicked = object : (Cat?, Int) -> Unit {
+        override fun invoke(cat: Cat?, position: Int) {
+            if (cat == null)
+                return
+            val action =
+                FavoriteFragmentDirections.actionNavigationFavoriteToNavigationAbout(cat.id)
+            findNavController().navigate(action)
+        }
     }
 
     override fun onDestroyView() {

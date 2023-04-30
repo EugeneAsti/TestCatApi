@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.aeyu.catapitestapp.data.local.models.BreedLocal
 import ru.aeyu.catapitestapp.data.local.models.CatLocal
-import ru.aeyu.evoreceipt.data.local.data_source.CatsDao
+import ru.aeyu.catapitestapp.data.local.data_source.CatsDao
 
 @Database(
     entities = [BreedLocal::class, CatLocal::class],

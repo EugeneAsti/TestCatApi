@@ -1,5 +1,6 @@
 package ru.aeyu.catapitestapp.ui.home
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -91,8 +92,16 @@ class HomeFragment : Fragment() {
 
     private fun collectErrors() {
         homeViewModel.errMessages.observe(viewLifecycleOwner) {
-            binding.errText.text = it
+            if(it.isNotEmpty())
+                showDialog(it)
         }
+    }
+
+    private fun showDialog(text: String) {
+        AlertDialog.Builder(requireContext()).apply {
+            setMessage(text)
+            setNeutralButton("Понятно", null)
+        }.show()
     }
 
     private fun collectCats() {

@@ -1,35 +1,43 @@
 package ru.aeyu.catapitestapp.ui.home
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import ru.aeyu.catapitestapp.data.remote.repositories.PreferencesDelegate
 import ru.aeyu.catapitestapp.domain.models.Breed
 import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.domain.usecases.GetPagingCatsRemoteUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteBreedsUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatsUseCase
+import ru.aeyu.catapitestapp.domain.usecases.SetFavoriteCatUseCase
+import ru.aeyu.catapitestapp.ui.extensions.bytesToHex
+import javax.crypto.KeyGenerator
 import javax.inject.Inject
+
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getRemoteCatsUseCase: GetRemoteCatsUseCase,
     private val getPagingCatsRemoteUseCase: GetPagingCatsRemoteUseCase,
     private val getRemoteBreedsUseCase: GetRemoteBreedsUseCase,
+    private val setFavoriteCatUseCase: SetFavoriteCatUseCase,
+    preferences: SharedPreferences
+) : ViewModel() {
 
-    ) : ViewModel() {
+    companion object {
+        const val USER_ID = "catsApiTestUserId"
+    }
 
     //    private val _catsList = MutableSharedFlow<List<Cat>>()
 //    val catsList: SharedFlow<List<Cat>> = _catsList.asSharedFlow()
@@ -47,21 +55,26 @@ class HomeViewModel @Inject constructor(
     private val _onBreedChanged = MutableLiveData("")
     val onBreedChanged: LiveData<String> = _onBreedChanged
 
+    private var userId: String by PreferencesDelegate(preferences, USER_ID, "")
+
+    private val _sumOfAddedFavorites = MutableSharedFlow<Int>()
+    val sumOfAddedFavorites: SharedFlow<Int> = _sumOfAddedFavorites.asSharedFlow()
+
+    private var addedFavorites = 0
+
+    init {
+        generateUserIdIfEmpty()
+    }
 
 
-    fun getCats(selectedBreedId: String): Flow<List<Cat>> = flow {
-        getRemoteCatsUseCase(10, selectedBreedId)
-            .onStart { _isLoadingCats.postValue(true) }
-            .collect { result ->
-                result.onSuccess {
-                    emit(it)
-                }
-                result.onFailure {
-                    it.printStackTrace()
-                    sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
-                }
-                _isLoadingCats.postValue(false)
+    private fun generateUserIdIfEmpty() {
+        if (userId.isEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val kg = KeyGenerator.getInstance("AES")
+                val key = kg.generateKey()
+                userId = key.encoded.bytesToHex()
             }
+        }
     }
 
     private fun sendErrMessage(errText: String) {
@@ -74,12 +87,24 @@ class HomeViewModel @Inject constructor(
 
 
     fun onAddToFavoriteClick(cat: Cat?) {
-
+        if (cat != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                setFavoriteCatUseCase(cat, userId).collect { result ->
+                    result.onSuccess {
+                        if (it)
+                            _sumOfAddedFavorites.emit(++addedFavorites)
+                    }
+                    result.onFailure {
+                        it.printStackTrace()
+                        sendErrMessage("onAddToFavoriteClick -> ERR: ${it.localizedMessage}")
+                    }
+                }
+            }
+        }
     }
 
     fun getCatsPaging(selectedBreedId: String): Flow<PagingData<Cat>> = flow {
         _isLoadingCats.value = true
-
         getPagingCatsRemoteUseCase(viewModelScope, 12, selectedBreedId)
             .collect { result ->
                 result.onSuccess {
@@ -109,7 +134,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun setBreed(breed: Breed) {
-            _onBreedChanged.value = breed.id
+        _onBreedChanged.value = breed.id
     }
 
+    fun clearFavorites(){
+        viewModelScope.launch{
+            addedFavorites = 0
+         _sumOfAddedFavorites.emit(addedFavorites)
+        }
+    }
 }

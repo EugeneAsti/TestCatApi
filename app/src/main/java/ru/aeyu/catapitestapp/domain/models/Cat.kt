@@ -9,6 +9,7 @@ data class Cat(
     val url: String,
     val width: Int
 ){
+    constructor() : this(listOf(), 0, "", "", 0)
     override fun hashCode(): Int {
         return Objects.hash(id, url)
     }

@@ -4,15 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import ru.aeyu.catapitestapp.R
-import ru.aeyu.catapitestapp.databinding.BreedItemBinding
 import ru.aeyu.catapitestapp.domain.models.Breed
 
 class BreedsArrayAdapter(
@@ -29,10 +24,8 @@ class BreedsArrayAdapter(
             v = vi.inflate(viewResourceId, null)
         }
         val breed: Breed = breeds[position]
-        if (breed != null) {
             val breedName = v?.findViewById(R.id.breedItemName) as TextView?
             breedName?.text = breed.name
-        }
         return v!!
     }
 
@@ -59,7 +52,7 @@ class BreedsArrayAdapter(
 
             if (results != null && results.count > 0) {
                 clear()
-                for (c: Breed in filteredList ?: listOf<Breed>()) {
+                for (c: Breed in filteredList ?: listOf()) {
                     add(c)
                 }
                 notifyDataSetChanged()

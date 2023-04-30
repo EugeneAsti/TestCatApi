@@ -24,4 +24,6 @@
     <string name="rex">Rex</string>
     <string name="breeds">Breeds</string>
     <string name="breed_filter">Breed filter:</string>
+    <string name="download">Download</string>
+    <string name="devider">------------</string>
 </resources>

@@ -1,27 +1,31 @@
 package ru.aeyu.catapitestapp
 
 import android.os.Bundle
-import android.os.PersistableBundle
+import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
-import androidx.core.view.isVisible
-import androidx.navigation.NavController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.onNavDestinationSelected
-import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.badge.BadgeDrawable
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.ActivityMainBinding
+import ru.aeyu.catapitestapp.ui.home.HomeViewModel
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
+
+    private lateinit var badgeFavorites: BadgeDrawable
+
+    private val homeViewModel: HomeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,7 +45,13 @@ class MainActivity : AppCompatActivity() {
         val itemHome = navView.menu.findItem(R.id.navigation_home)
         val itemFavorite = navView.menu.findItem(R.id.navigation_favorite)
 
-//        val appBarConfiguration = AppBarConfiguration(navGraph = navController.graph)
+        badgeFavorites = navView.getOrCreateBadge(R.id.navigation_favorite)
+        badgeFavorites.isVisible = false
+
+// An icon only badge will be displayed unless a number is set:
+        //badge.number = 99
+
+        val appBarConfiguration = AppBarConfiguration(navGraph = navController.graph)
         itemHome.setOnMenuItemClickListener {
             navController.popBackStack()
             navController.navigate(R.id.navigation_home)
@@ -50,10 +60,11 @@ class MainActivity : AppCompatActivity() {
         itemFavorite.setOnMenuItemClickListener {
             navController.popBackStack()
             navController.navigate(R.id.navigation_favorite)
+            homeViewModel.clearFavorites()
             false
         }
 
-//        setupActionBarWithNavController(navController, appBarConfiguration)
+        setupActionBarWithNavController(this, navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -62,6 +73,22 @@ class MainActivity : AppCompatActivity() {
                     itemAbout.isVisible = true
                 }
                 else -> itemAbout.isVisible = false
+            }
+        }
+
+        collectFavorites()
+    }
+
+    private fun collectFavorites() {
+        this.lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                homeViewModel.sumOfAddedFavorites.collect { result ->
+                    if (result > 0) {
+                        badgeFavorites.isVisible = true
+                        badgeFavorites.number = result
+                    } else
+                        badgeFavorites.isVisible = false
+                }
             }
         }
     }

@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_navigation_favorite_to_navigation_home"
             app:destination="@id/navigation_home" />
+        <action
+            android:id="@+id/action_navigation_favorite_to_navigation_about"
+            app:destination="@id/navigation_about" />
     </fragment>
 
     <fragment
@@ -42,5 +45,8 @@
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_navigation_about_to_navigation_favorite"
+            app:destination="@id/navigation_favorite" />
     </fragment>
 </navigation>

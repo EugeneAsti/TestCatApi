@@ -9,7 +9,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.aeyu.evoreceipt.data.local.MainDataBase
-import ru.aeyu.evoreceipt.data.local.data_source.CatsDao
+import ru.aeyu.catapitestapp.data.local.data_source.CatsDao
+import ru.aeyu.catapitestapp.data.local.repository.FavoriteCatsLocalRepository
+import ru.aeyu.catapitestapp.data.local.repository.FavoriteCatsLocalRepositoryImpl
 import javax.inject.Singleton
 
 @Module
@@ -38,4 +40,11 @@ class LocalDataModule {
            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
            .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideFavoriteCatsLocalRepository(
+        catsDao: CatsDao): FavoriteCatsLocalRepository =
+        FavoriteCatsLocalRepositoryImpl(catsDao)
+
 }
