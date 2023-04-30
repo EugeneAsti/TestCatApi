@@ -1,4 +1,4 @@
-package ru.aeyu.catapitestapp.ui.home.adapters
+package ru.aeyu.catapitestapp.ui.favorite.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import ru.aeyu.catapitestapp.databinding.FavoriteCatItemBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
-import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemote
+import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemoteWithCompress
 
 class FavoriteCatsAdapter(
     private val onItemClick: (cat: Cat?, position: Int) -> Unit,
@@ -45,7 +45,7 @@ class FavoriteCatsAdapter(
         fun bind(item: Cat?) {
             if (item == null)
                 return
-            binding.catImage.getImageFromRemote(
+            binding.catImage.getImageFromRemoteWithCompress(
                 context = binding.catImage.context,
                 url = item.url,
                 progressBarWidget = binding.catLoading

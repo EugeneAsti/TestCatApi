@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentFavoriteBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
-import ru.aeyu.catapitestapp.ui.home.adapters.FavoriteCatsAdapter
+import ru.aeyu.catapitestapp.ui.favorite.adapters.FavoriteCatsAdapter
 
 class FavoriteFragment : Fragment() {
 
@@ -55,7 +55,7 @@ class FavoriteFragment : Fragment() {
 
     private fun collectCats() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 favoriteViewModel.getCats().collect {
                     catsAdapter.differ.submitList(it)

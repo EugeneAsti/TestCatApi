@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import ru.aeyu.catapitestapp.databinding.CatItemBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
-import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemote
+import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemoteWithCompress
 
 class CatsAdapter(
     diffCallback: DiffUtil.ItemCallback<Cat>,
@@ -36,7 +36,7 @@ class CatsAdapter(
         fun bind(item: Cat?) {
             if (item == null)
                 return
-            binding.catImage.getImageFromRemote(
+            binding.catImage.getImageFromRemoteWithCompress(
                 context = binding.catImage.context,
                 url = item.url,
                 progressBarWidget = binding.catLoading

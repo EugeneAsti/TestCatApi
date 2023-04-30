@@ -69,14 +69,11 @@ class HomeFragment : Fragment() {
 
     private fun collectBreeds() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.getBreeds().collect { breeds ->
                     initBreedAdapter(breeds)
 
                 }
-//                homeViewModel.getCats().collect{
-//                    catsAdapter.differ.submitList(it)
-//                }
             }
         }
     }
@@ -107,7 +104,7 @@ class HomeFragment : Fragment() {
     private fun collectCats() {
         homeViewModel.onBreedChanged.observe(viewLifecycleOwner) { breedId ->
             viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                     homeViewModel.getCatsPaging(breedId).collectLatest {
                         catsAdapter.submitData(it)
