@@ -59,7 +59,8 @@ class AboutFragment : Fragment() {
 
     private fun collectMessages() {
         aboutViewModel.infoMessages.observe(viewLifecycleOwner) {
-            showSnackBar(it)
+            if(it.isNotEmpty())
+                showSnackBar(it)
         }
     }
 

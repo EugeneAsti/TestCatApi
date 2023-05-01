@@ -33,8 +33,8 @@ android {
 
         applicationVariants.all { variant ->
             def fileNames = [
-                    release: "EvoReceipt_${versionName}.apk",
-                    debug  : "EvoReceipt_d.apk"
+                    release: "CatApiTest_${versionName}.apk",
+                    debug  : "CatApiTest_d.apk"
             ]
             if (fileNames.containsKey(variant.name)) {
                 def fileName = fileNames.get(variant.name)
