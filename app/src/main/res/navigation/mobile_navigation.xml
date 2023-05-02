@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/navigation_favorite"
-        android:name="ru.aeyu.catapitestapp.ui.favorite.FavoriteFragment"
+        android:name="ru.aeyu.catapitestapp.ui.favorite.FavoritesFragment"
         android:label="@string/title_favorite"
         tools:layout="@layout/fragment_favorite">
         <action

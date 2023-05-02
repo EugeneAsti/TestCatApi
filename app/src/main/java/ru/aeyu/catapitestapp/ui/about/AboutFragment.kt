@@ -18,7 +18,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentAboutBinding
@@ -30,12 +29,11 @@ class AboutFragment : Fragment() {
 
     private var _binding: FragmentAboutBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     private val aboutViewModel: AboutViewModel by activityViewModels()
-    private val args: AboutFragmentArgs by navArgs()
+
+    //    private val args: AboutFragmentArgs by navArgs()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,7 +49,8 @@ class AboutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        aboutViewModel.catImageId = args.catImageId ?: ""
+//        aboutViewModel.catImageId = args.catImageId ?: ""
+        aboutViewModel.catImageId = arguments?.getString(EXTRA_CAT_ID_KEY, "") ?: ""
         collectCatInfo()
         binding.downLoadIcon.setOnClickListener(onDownLoadClick)
         collectMessages()
@@ -74,9 +73,6 @@ class AboutFragment : Fragment() {
                 aboutViewModel.getCatInformation().collect {
                     handleCatData(it)
                 }
-//                homeViewModel.getCats().collect{
-//                    catsAdapter.differ.submitList(it)
-//                }
             }
         }
     }
@@ -108,7 +104,7 @@ class AboutFragment : Fragment() {
         binding.ratingBarHairless.numStars = breed.hairless
         binding.ratingBarNatural.numStars = breed.natural
         binding.ratingBarRare.numStars = breed.rare
-        binding.ratingBarRex.numStars = breed.rex
+       binding.ratingBarRex.numStars = breed.rex
 
     }
 
@@ -211,6 +207,18 @@ class AboutFragment : Fragment() {
         }.also { intent ->
             startActivity(intent)
         }
+    }
+
+
+    companion object {
+        const val EXTRA_CAT_ID_KEY = "catId_key"
+
+        fun getNewInstance(catId: String?) =
+            AboutFragment().apply {
+                arguments = Bundle().apply {
+                    putString(EXTRA_CAT_ID_KEY, catId)
+                }
+            }
     }
 
 

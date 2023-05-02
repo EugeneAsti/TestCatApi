@@ -15,7 +15,7 @@ import ru.aeyu.catapitestapp.ui.home.HomeViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteViewModel @Inject constructor(
+class FavoritesViewModel @Inject constructor(
     private val getFavoriteCatsUseCase: GetFavoriteCatsUseCase,
     preferences: SharedPreferences
 ) : ViewModel() {
@@ -37,7 +37,7 @@ class FavoriteViewModel @Inject constructor(
                 }
                 result.onFailure {
                     it.printStackTrace()
-                    sendErrMessage("FavoriteViewModel -> ERR: ${it.localizedMessage}")
+                    sendErrMessage("FavoritesViewModel -> ERR: ${it.localizedMessage}")
                 }
                 _isLoadingCats.postValue(false)
             }

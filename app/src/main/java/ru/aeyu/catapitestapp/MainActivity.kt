@@ -7,15 +7,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import com.github.terrakok.cicerone.Command
+import com.github.terrakok.cicerone.Forward
+import com.github.terrakok.cicerone.Navigator
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.androidx.AppNavigator
 import com.google.android.material.badge.BadgeDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.ActivityMainBinding
+import ru.aeyu.catapitestapp.domain.cicerone.repository.main.MainActivityScreenRouter
+import ru.aeyu.catapitestapp.domain.cicerone.Screens.homeScreen
 import ru.aeyu.catapitestapp.ui.home.HomeViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -26,8 +30,30 @@ class MainActivity : AppCompatActivity() {
 
     private val homeViewModel: HomeViewModel by viewModels()
 
+    private val navigator: Navigator = AppNavigator(this,
+        R.id.nav_host_fragment_activity_main)
+
+
+    @Inject
+    lateinit var navigatorHolder: NavigatorHolder
+
+    @Inject
+    lateinit var mainActivityScreenRouter: MainActivityScreenRouter
+
+//    private val navigator: Navigator = object : AppNavigator(
+//        this, R.id.nav_host_fragment_activity_main) {
+//
+//        override fun applyCommands(commands: Array<out Command>) {
+//            super.applyCommands(commands)
+//            supportFragmentManager.executePendingTransactions()
+//        }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        if(savedInstanceState == null)
+            navigator.applyCommands(arrayOf<Command>(Forward(homeScreen())))
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -36,50 +62,56 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+//        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val navView: BottomNavigationView = binding.navView
-
+//
         val itemAbout = navView.menu.findItem(R.id.navigation_about)
+        itemAbout.isVisible = false
         val itemHome = navView.menu.findItem(R.id.navigation_home)
         val itemFavorite = navView.menu.findItem(R.id.navigation_favorite)
-
+//
         badgeFavorites = navView.getOrCreateBadge(R.id.navigation_favorite)
         badgeFavorites.isVisible = false
+//
+//        val appBarConfiguration = AppBarConfiguration(
+//            setOf(R.id.navigation_home, R.id.navigation_favorite, R.id.navigation_favorite)
+//        )
 
-// An icon only badge will be displayed unless a number is set:
-        //badge.number = 99
-
-        val appBarConfiguration = AppBarConfiguration(navGraph = navController.graph)
         itemHome.setOnMenuItemClickListener {
-            navController.popBackStack()
-            navController.navigate(R.id.navigation_home)
+//            navController.popBackStack()
+//            navController.navigate(R.id.navigation_home)
+            itemAbout.isVisible = false
+            mainActivityScreenRouter.onHome()
             false
         }
         itemFavorite.setOnMenuItemClickListener {
-            navController.popBackStack()
-            navController.navigate(R.id.navigation_favorite)
+//            navController.popBackStack()
+//            navController.navigate(R.id.navigation_favorite)
+            itemAbout.isVisible = false
+            mainActivityScreenRouter.onFavorites()
             homeViewModel.clearFavorites()
             false
         }
 
-        setupActionBarWithNavController(this, navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.navigation_about -> {
-                    itemAbout.isVisible = true
-                }
-                else -> itemAbout.isVisible = false
-            }
-        }
+//
+//        setupActionBarWithNavController(this, navController, appBarConfiguration)
+//        navView.setupWithNavController(navController)
+//
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            when (destination.id) {
+//                R.id.navigation_about -> {
+//                    itemAbout.isVisible = true
+//                }
+//                else -> itemAbout.isVisible = false
+//            }
+//        }
 
-        collectFavorites()
+        countFavorites()
+        mainActivityScreenRouter.onAbout()
     }
 
-    private fun collectFavorites() {
+    private fun countFavorites() {
         this.lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 homeViewModel.sumOfAddedFavorites.collect { result ->
@@ -91,6 +123,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        mainActivityScreenRouter.onDestroy()
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        navigatorHolder.setNavigator(navigator)
+    }
+
+    override fun onPause() {
+        navigatorHolder.removeNavigator()
+        super.onPause()
     }
 
 }

@@ -16,11 +16,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.data.remote.repositories.PreferencesDelegate
+import ru.aeyu.catapitestapp.domain.cicerone.repository.home.HomeFragmentScreenRouter
 import ru.aeyu.catapitestapp.domain.models.Breed
 import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.domain.usecases.GetPagingCatsRemoteUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteBreedsUseCase
-import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatsUseCase
 import ru.aeyu.catapitestapp.domain.usecases.SetFavoriteCatUseCase
 import ru.aeyu.catapitestapp.ui.extensions.bytesToHex
 import javax.crypto.KeyGenerator
@@ -32,6 +32,7 @@ class HomeViewModel @Inject constructor(
     private val getPagingCatsRemoteUseCase: GetPagingCatsRemoteUseCase,
     private val getRemoteBreedsUseCase: GetRemoteBreedsUseCase,
     private val setFavoriteCatUseCase: SetFavoriteCatUseCase,
+    private val homeFragmentScreenRouter: HomeFragmentScreenRouter,
     preferences: SharedPreferences
 ) : ViewModel() {
 
@@ -142,5 +143,9 @@ class HomeViewModel @Inject constructor(
             addedFavorites = 0
          _sumOfAddedFavorites.emit(addedFavorites)
         }
+    }
+
+    fun onCatClicked(catId: String){
+        homeFragmentScreenRouter.onCatClicked(catId)
     }
 }

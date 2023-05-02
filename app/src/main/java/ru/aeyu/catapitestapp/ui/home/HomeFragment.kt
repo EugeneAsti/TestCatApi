@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AutoCompleteTextView
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -62,9 +62,17 @@ class HomeFragment : Fragment() {
         homeViewModel.isLoadingCats.observe(viewLifecycleOwner) {
             binding.mainProgress.isVisible = it
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressed)
         collectCats()
         collectErrors()
         collectBreeds()
+    }
+
+    private val backPressed = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+
+            //requireActivity().finish()
+        }
     }
 
     private fun collectBreeds() {
@@ -122,8 +130,9 @@ class HomeFragment : Fragment() {
         override fun invoke(cat: Cat?, position: Int) {
             if (cat == null)
                 return
-            val action = HomeFragmentDirections.actionNavigationHomeToNavigationAbout(cat.id)
-            findNavController().navigate(action)
+//            val action = HomeFragmentDirections.actionNavigationHomeToNavigationAbout(cat.id)
+//            findNavController().navigate(action)
+            homeViewModel.onCatClicked(cat.id)
         }
     }
 
@@ -148,4 +157,7 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
+
 }

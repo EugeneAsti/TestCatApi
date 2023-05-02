@@ -10,20 +10,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentFavoriteBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.ui.favorite.adapters.FavoriteCatsAdapter
 
-class FavoriteFragment : Fragment() {
+class FavoritesFragment : Fragment() {
 
     private var _binding: FragmentFavoriteBinding? = null
 
     private val binding get() = _binding!!
 
-    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
+    private val favoritesViewModel: FavoritesViewModel by activityViewModels()
 
     private lateinit var catsAdapter: FavoriteCatsAdapter
 
@@ -47,7 +46,7 @@ class FavoriteFragment : Fragment() {
         val layoutManager = GridLayoutManager(requireContext(), 3)
         //layoutManager.
         binding.favoriteCats.layoutManager = layoutManager
-        favoriteViewModel.isLoadingCats.observe(viewLifecycleOwner) {
+        favoritesViewModel.isLoadingCats.observe(viewLifecycleOwner) {
             binding.mainProgress.isVisible = it
         }
         collectCats()
@@ -57,7 +56,7 @@ class FavoriteFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                favoriteViewModel.getCats().collect {
+                favoritesViewModel.getCats().collect {
                     catsAdapter.differ.submitList(it)
                 }
             }
@@ -68,9 +67,9 @@ class FavoriteFragment : Fragment() {
         override fun invoke(cat: Cat?, position: Int) {
             if (cat == null)
                 return
-            val action =
-                FavoriteFragmentDirections.actionNavigationFavoriteToNavigationAbout(cat.id)
-            findNavController().navigate(action)
+//            val action =
+//                FavoriteFragmentDirections.actionNavigationFavoriteToNavigationAbout(cat.id)
+//            findNavController().navigate(action)
         }
     }
 
