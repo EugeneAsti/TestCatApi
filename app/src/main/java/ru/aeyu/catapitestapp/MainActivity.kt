@@ -51,7 +51,9 @@ class MainActivity : AppCompatActivity() {
 // An icon only badge will be displayed unless a number is set:
         //badge.number = 99
 
-        val appBarConfiguration = AppBarConfiguration(navGraph = navController.graph)
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.navigation_home, R.id.navigation_favorite, R.id.navigation_about)
+        )
         itemHome.setOnMenuItemClickListener {
             navController.popBackStack()
             navController.navigate(R.id.navigation_home)

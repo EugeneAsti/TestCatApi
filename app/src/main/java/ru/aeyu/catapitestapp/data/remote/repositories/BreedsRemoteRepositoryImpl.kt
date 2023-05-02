@@ -12,10 +12,18 @@ class BreedsRemoteRepositoryImpl(private val breedsRemoteApi: BreedsRemoteApi)
 
 
     override suspend fun getBreeds(): Flow<List<Breed>> =
-        flowOf(breedsRemoteApi.getBreeds()).map { item ->
-            item.map {
-                it.toDomainModel()
+        flowOf(
+            try {
+                breedsRemoteApi.getBreeds()
+            }catch (ex: Exception){
+             listOf()
             }
+        ).map { item ->
+            val list = item.map {
+                it.toDomainModel()
+            }.toMutableList()
+            list.add(0, Breed())
+            list.toList()
         }
 
 }
