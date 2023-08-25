@@ -48,11 +48,12 @@ class BreedsArrayAdapter(
         }
 
         override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-            val filteredList = results?.values as ArrayList<Breed>?
+            val listAny = results?.values as ArrayList<*>?
+            val filteredList: List<Breed> = listAny?.filterIsInstance<Breed>() ?: emptyList()
 
             if (results != null && results.count > 0) {
                 clear()
-                for (c: Breed in filteredList ?: listOf()) {
+                for (c: Breed in filteredList) {
                     add(c)
                 }
                 notifyDataSetChanged()

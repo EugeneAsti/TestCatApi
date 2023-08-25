@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,31 +22,19 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentAboutBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
+import ru.aeyu.catapitestapp.ui.BaseFragment
 import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemote
 
-class AboutFragment : Fragment() {
-
-
-    private var _binding: FragmentAboutBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+class AboutFragment : BaseFragment<FragmentAboutBinding>() {
 
     private val aboutViewModel: AboutViewModel by activityViewModels()
     private val args: AboutFragmentArgs by navArgs()
-    override fun onCreateView(
+
+    override fun getBindingInstance(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-//        val aboutViewModel =
-//            ViewModelProvider(this).get(AboutViewModel::class.java)
-
-        _binding = FragmentAboutBinding.inflate(inflater, container, false)
-
-        return binding.root
-    }
+        b: Boolean
+    ): FragmentAboutBinding = FragmentAboutBinding.inflate(inflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,10 +49,6 @@ class AboutFragment : Fragment() {
             if(it.isNotEmpty())
                 showSnackBar(it)
         }
-    }
-
-    private fun showSnackBar(messageText: String) {
-        Snackbar.make(binding.root, messageText, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun collectCatInfo() {
@@ -110,11 +93,6 @@ class AboutFragment : Fragment() {
         binding.ratingBarRare.numStars = breed.rare
         binding.ratingBarRex.numStars = breed.rex
 
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     private val onDownLoadClick = View.OnClickListener {
@@ -182,24 +160,6 @@ class AboutFragment : Fragment() {
             show()
         }
     }
-
-
-//    private fun showHowToAllowPermissionIfNeeded() {
-//        AlertDialog.Builder(requireContext()).apply {
-//            setPositiveButton("Понятно", null)
-//            setTitle("Информация")
-//            setMessage(
-//                "Разрешить сохранение во внеший источник можно в настройках устройства.\n " +
-//                        "В настройках Найдите меню Приложения, " +
-//                        "\nЗатем найдите приложение CatApiTestApp, " +
-//                        "\nДалее откройте меню Разрешения и " +
-//                        "включите переключатель в строке Накопители"
-//            )
-//            show()
-//        }
-//    }
-
-
 
     private fun goToSettings() {
         Intent(
