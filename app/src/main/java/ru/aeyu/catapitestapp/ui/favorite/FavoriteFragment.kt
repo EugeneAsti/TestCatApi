@@ -15,28 +15,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.databinding.FragmentFavoriteBinding
 import ru.aeyu.catapitestapp.domain.models.Cat
+import ru.aeyu.catapitestapp.ui.BaseFragment
 import ru.aeyu.catapitestapp.ui.favorite.adapters.FavoriteCatsAdapter
 
-class FavoriteFragment : Fragment() {
-
-    private var _binding: FragmentFavoriteBinding? = null
-
-    private val binding get() = _binding!!
+class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
 
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
     private lateinit var catsAdapter: FavoriteCatsAdapter
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        _binding = FragmentFavoriteBinding.inflate(inflater, container, false)
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,8 +60,10 @@ class FavoriteFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+    override fun getBindingInstance(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        b: Boolean
+    ): FragmentFavoriteBinding = FragmentFavoriteBinding.inflate(inflater, container, false)
+
 }

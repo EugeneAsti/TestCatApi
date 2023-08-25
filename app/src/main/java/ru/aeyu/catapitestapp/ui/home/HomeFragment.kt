@@ -21,17 +21,12 @@ import ru.aeyu.catapitestapp.R
 import ru.aeyu.catapitestapp.databinding.FragmentHomeBinding
 import ru.aeyu.catapitestapp.domain.models.Breed
 import ru.aeyu.catapitestapp.domain.models.Cat
+import ru.aeyu.catapitestapp.ui.BaseFragment
 import ru.aeyu.catapitestapp.ui.home.adapters.BreedsArrayAdapter
 import ru.aeyu.catapitestapp.ui.home.adapters.CatsAdapter
 import ru.aeyu.catapitestapp.ui.home.adapters.DiffUtilsCat
 
-class HomeFragment : Fragment() {
-
-    private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     private lateinit var catsAdapter: CatsAdapter
 
@@ -40,14 +35,11 @@ class HomeFragment : Fragment() {
 
     private val homeViewModel: HomeViewModel by activityViewModels()
 
-    override fun onCreateView(
+    override fun getBindingInstance(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        b: Boolean
+    ): FragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,13 +86,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun showDialog(text: String) {
-        AlertDialog.Builder(requireContext()).apply {
-            setMessage(text)
-            setNeutralButton("Понятно", null)
-        }.show()
-    }
-
     private fun collectCats() {
         homeViewModel.onBreedChanged.observe(viewLifecycleOwner) { breedId ->
             viewLifecycleOwner.lifecycleScope.launch {
@@ -144,8 +129,4 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
