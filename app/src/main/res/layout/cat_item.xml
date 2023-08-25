@@ -9,7 +9,6 @@
     android:clipChildren="false"
     android:elevation="4dp"
     app:contentPadding="4dp"
-
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="4dp"
     app:cardElevation="8dp"

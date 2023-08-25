@@ -8,7 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.aeyu.evoreceipt.data.local.MainDataBase
+import ru.aeyu.catapitestapp.data.local.MainDataBase
 import ru.aeyu.catapitestapp.data.local.data_source.CatsDao
 import ru.aeyu.catapitestapp.data.local.repository.FavoriteCatsLocalRepository
 import ru.aeyu.catapitestapp.data.local.repository.FavoriteCatsLocalRepositoryImpl
