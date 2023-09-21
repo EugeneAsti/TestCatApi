@@ -3,7 +3,6 @@ package ru.aeyu.catapitestapp.ui.home
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.aeyu.catapitestapp.data.remote.repositories.PreferencesDelegate
@@ -20,9 +20,10 @@ import ru.aeyu.catapitestapp.domain.models.Breed
 import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.domain.usecases.GetPagingCatsRemoteUseCase
 import ru.aeyu.catapitestapp.domain.usecases.GetRemoteBreedsUseCase
-import ru.aeyu.catapitestapp.domain.usecases.GetRemoteCatsUseCase
 import ru.aeyu.catapitestapp.domain.usecases.SetFavoriteCatUseCase
+import ru.aeyu.catapitestapp.ui.BaseViewModel
 import ru.aeyu.catapitestapp.ui.extensions.bytesToHex
+import ru.aeyu.catapitestapp.utils.USER_ID
 import javax.crypto.KeyGenerator
 import javax.inject.Inject
 
@@ -33,24 +34,7 @@ class HomeViewModel @Inject constructor(
     private val getRemoteBreedsUseCase: GetRemoteBreedsUseCase,
     private val setFavoriteCatUseCase: SetFavoriteCatUseCase,
     preferences: SharedPreferences
-) : ViewModel() {
-
-    companion object {
-        const val USER_ID = "catsApiTestUserId"
-    }
-
-    //    private val _catsList = MutableSharedFlow<List<Cat>>()
-//    val catsList: SharedFlow<List<Cat>> = _catsList.asSharedFlow()
-    private val _isLoadingCats = MutableLiveData(true)
-    val isLoadingCats: LiveData<Boolean> = _isLoadingCats
-
-    private val _errMessages = MutableLiveData("")
-    val errMessages: LiveData<String> = _errMessages
-
-    private val _infoMessages = MutableLiveData<String>()
-    val infoMessages: LiveData<String> = _infoMessages
-
-//    var selectedBreed: String = ""
+) : BaseViewModel() {
 
     private val _onBreedChanged = MutableLiveData("")
     val onBreedChanged: LiveData<String> = _onBreedChanged
@@ -66,7 +50,6 @@ class HomeViewModel @Inject constructor(
         generateUserIdIfEmpty()
     }
 
-
     private fun generateUserIdIfEmpty() {
         if (userId.isEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -76,15 +59,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    private fun sendErrMessage(errText: String) {
-        _errMessages.postValue(errText)
-    }
-
-    private fun sendInfoMessage(info: String) {
-        _infoMessages.postValue(info)
-    }
-
 
     fun onAddToFavoriteClick(cat: Cat?) {
         if (cat != null) {
@@ -104,8 +78,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getCatsPaging(selectedBreedId: String): Flow<PagingData<Cat>> = flow {
-        _isLoadingCats.value = true
         getPagingCatsRemoteUseCase(viewModelScope, 12, selectedBreedId)
+            .onStart { setIsLoading(true) }
+            .onCompletion {
+                it?.printStackTrace()
+                setIsLoading(false)
+            }
             .collect { result ->
                 result.onSuccess {
                     emit(it)
@@ -114,13 +92,16 @@ class HomeViewModel @Inject constructor(
                     it.printStackTrace()
                     sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
                 }
-                _isLoadingCats.postValue(false)
             }
     }
 
     fun getBreeds(): Flow<List<Breed>> = flow {
         getRemoteBreedsUseCase()
-            .onStart { _isLoadingCats.postValue(true) }
+            .onStart { setIsLoading(true) }
+            .onCompletion {
+                it?.printStackTrace()
+                setIsLoading(false)
+            }
             .collect { result ->
                 result.onSuccess {
                     emit(it)
@@ -129,7 +110,6 @@ class HomeViewModel @Inject constructor(
                     it.printStackTrace()
                     sendErrMessage("HomeViewModel -> ERR: ${it.localizedMessage}")
                 }
-                _isLoadingCats.postValue(false)
             }
     }
 
@@ -137,10 +117,10 @@ class HomeViewModel @Inject constructor(
         _onBreedChanged.value = breed.id
     }
 
-    fun clearFavorites(){
-        viewModelScope.launch{
+    fun clearFavorites() {
+        viewModelScope.launch {
             addedFavorites = 0
-         _sumOfAddedFavorites.emit(addedFavorites)
+            _sumOfAddedFavorites.emit(addedFavorites)
         }
     }
 }

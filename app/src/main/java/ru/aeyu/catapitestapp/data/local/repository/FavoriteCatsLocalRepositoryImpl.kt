@@ -1,7 +1,7 @@
 package ru.aeyu.catapitestapp.data.local.repository
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 import ru.aeyu.catapitestapp.data.local.data_source.CatsDao
 import ru.aeyu.catapitestapp.data.local.models.CatLocal
 import ru.aeyu.catapitestapp.data.mappers.toDomainModel
@@ -20,11 +20,6 @@ class FavoriteCatsLocalRepositoryImpl(
     }
 
     override suspend fun getFavoriteCats(): Flow<List<Cat>> =
-        catsDao.getFavoriteCatsLocal().map {list ->
-            list.map {item ->
-                item.toDomainModel()
-            }
-        }
-
+        flowOf(catsDao.getFavoriteCatsLocal().map { it.toDomainModel()})
 
 }

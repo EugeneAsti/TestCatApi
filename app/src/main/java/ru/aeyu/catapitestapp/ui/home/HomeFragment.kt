@@ -24,14 +24,14 @@ import ru.aeyu.catapitestapp.ui.home.adapters.BreedsArrayAdapter
 import ru.aeyu.catapitestapp.ui.home.adapters.CatsAdapter
 import ru.aeyu.catapitestapp.ui.home.adapters.DiffUtilsCat
 
-class HomeFragment : BaseFragment<FragmentHomeBinding>() {
+class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
 
     private lateinit var catsAdapter: CatsAdapter
 
     private lateinit var spinnerAdapter: BreedsArrayAdapter
     private lateinit var spinnerBreeds: AutoCompleteTextView
 
-    private val homeViewModel: HomeViewModel by activityViewModels()
+    override val viewModel: HomeViewModel by activityViewModels()
 
     override fun getBindingInstance(
         inflater: LayoutInflater,
@@ -49,18 +49,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         val layoutManager = GridLayoutManager(requireContext(), 3)
         //layoutManager.
         binding.cats.layoutManager = layoutManager
-        homeViewModel.isLoadingCats.observe(viewLifecycleOwner) {
-            binding.mainProgress.isVisible = it
-        }
+//        homeViewModel.isLoadingCats.observe(viewLifecycleOwner) {
+//            binding.mainProgress.isVisible = it
+//        }
         collectCats()
-        collectErrors()
         collectBreeds()
     }
 
     private fun collectBreeds() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.getBreeds().collect { breeds ->
+                viewModel.getBreeds().collect { breeds ->
                     initBreedAdapter(breeds)
 
                 }
@@ -77,19 +76,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     }
 
-    private fun collectErrors() {
-        homeViewModel.errMessages.observe(viewLifecycleOwner) {
-            if(it.isNotEmpty())
-                showDialog(it)
-        }
-    }
-
     private fun collectCats() {
-        homeViewModel.onBreedChanged.observe(viewLifecycleOwner) { breedId ->
+        viewModel.onBreedChanged.observe(viewLifecycleOwner) { breedId ->
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                    homeViewModel.getCatsPaging(breedId).collectLatest {
+                    viewModel.getCatsPaging(breedId).collectLatest {
                         catsAdapter.submitData(it)
                     }
 
@@ -117,14 +109,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private val onBreedClicked = object : (Breed?) -> Unit {
         override fun invoke(breed: Breed?) {
             if (breed != null)
-                homeViewModel.setBreed(breed)
+                viewModel.setBreed(breed)
         }
     }
 
     private val onAddToFavoriteClicked = object : (Cat?, Int) -> Unit {
         override fun invoke(cat: Cat?, position: Int) {
-            homeViewModel.onAddToFavoriteClick(cat)
+            viewModel.onAddToFavoriteClick(cat)
         }
+    }
+
+    override fun showProgressIndicator(isLoading: Boolean) {
+        binding.mainProgress.isVisible = isLoading
     }
 
 }

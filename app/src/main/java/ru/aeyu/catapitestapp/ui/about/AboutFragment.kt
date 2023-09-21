@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,9 +26,9 @@ import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.ui.BaseFragment
 import ru.aeyu.catapitestapp.ui.extensions.getImageFromRemote
 
-class AboutFragment : BaseFragment<FragmentAboutBinding>() {
+class AboutFragment : BaseFragment<FragmentAboutBinding, AboutViewModel>() {
 
-    private val aboutViewModel: AboutViewModel by activityViewModels()
+    override val viewModel: AboutViewModel by activityViewModels()
     private val args: AboutFragmentArgs by navArgs()
 
     override fun getBindingInstance(
@@ -36,30 +37,24 @@ class AboutFragment : BaseFragment<FragmentAboutBinding>() {
         b: Boolean
     ): FragmentAboutBinding = FragmentAboutBinding.inflate(inflater, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        aboutViewModel.catImageId = args.catImageId ?: ""
-        collectCatInfo()
-        binding.downLoadIcon.setOnClickListener(onDownLoadClick)
-        collectMessages()
+    override fun showProgressIndicator(isLoading: Boolean) {
+        binding.catImageProgressBar.isVisible = isLoading
     }
 
-    private fun collectMessages() {
-        aboutViewModel.infoMessages.observe(viewLifecycleOwner) {
-            if(it.isNotEmpty())
-                showSnackBar(it)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.catImageId = args.catImageId ?: ""
+        collectCatInfo()
+        binding.downLoadIcon.setOnClickListener(onDownLoadClick)
     }
+
 
     private fun collectCatInfo() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                aboutViewModel.getCatInformation().collect {
+                viewModel.getCatInformation().collect {
                     handleCatData(it)
                 }
-//                homeViewModel.getCats().collect{
-//                    catsAdapter.differ.submitList(it)
-//                }
             }
         }
     }
@@ -101,7 +96,7 @@ class AboutFragment : BaseFragment<FragmentAboutBinding>() {
 
     private fun requestWriteExternalStoragePermissions() {
         if (checkPermission() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            aboutViewModel.onDownloadClick()
+            viewModel.onDownloadClick()
         } else {
             allowPermissions.launch(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,

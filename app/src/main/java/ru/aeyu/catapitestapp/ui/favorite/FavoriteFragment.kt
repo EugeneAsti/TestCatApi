@@ -17,32 +17,24 @@ import ru.aeyu.catapitestapp.domain.models.Cat
 import ru.aeyu.catapitestapp.ui.BaseFragment
 import ru.aeyu.catapitestapp.ui.favorite.adapters.FavoriteCatsAdapter
 
-class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
+class FavoriteFragment : BaseFragment<FragmentFavoriteBinding, FavoriteViewModel>() {
 
-    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
+    override val viewModel: FavoriteViewModel by activityViewModels()
 
     private lateinit var catsAdapter: FavoriteCatsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         catsAdapter = FavoriteCatsAdapter(onCatClicked)
-
-
         binding.favoriteCats.adapter = catsAdapter
-        val layoutManager = GridLayoutManager(requireContext(), 3)
-        //layoutManager.
-        binding.favoriteCats.layoutManager = layoutManager
-        favoriteViewModel.isLoadingCats.observe(viewLifecycleOwner) {
-            binding.mainProgress.isVisible = it
-        }
+        binding.favoriteCats.layoutManager = GridLayoutManager(requireContext(), 3)
         collectCats()
     }
 
     private fun collectCats() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                favoriteViewModel.getCats().collect {
+                viewModel.getCats().collect {
                     catsAdapter.differ.submitList(it)
                 }
             }
@@ -64,5 +56,9 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
         container: ViewGroup?,
         b: Boolean
     ): FragmentFavoriteBinding = FragmentFavoriteBinding.inflate(inflater, container, false)
+
+    override fun showProgressIndicator(isLoading: Boolean) {
+        binding.mainProgress.isVisible = isLoading
+    }
 
 }
